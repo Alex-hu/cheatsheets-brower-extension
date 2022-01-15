@@ -11,18 +11,13 @@
           @click="drawerToggled"
         />
 
-        <q-toolbar-title> Quasar App </q-toolbar-title>
+        <q-toolbar-title> Cheatsheets App </q-toolbar-title>
 
         <div>Quasar v{{ $q.version }}</div>
       </q-toolbar>
     </q-header>
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-      @update:model-value="drawerToggled"
-    >
+    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
       <q-list>
         <q-item-label header> Essential Links </q-item-label>
 
@@ -43,15 +38,7 @@
 import { defineComponent, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import EssentialLink from 'components/EssentialLink.vue';
-
-interface StorageDrawerData {
-  key: string;
-  data: ToggleStatus;
-}
-
-interface ToggleStatus {
-  open: boolean;
-}
+import { StorageDrawerData, ToggleStatus } from './types';
 
 export default defineComponent({
   name: 'OptionPage',
@@ -62,10 +49,10 @@ export default defineComponent({
   setup() {
     const linksList = [
       {
-        title: 'Docs',
+        title: 'Cheatsheets',
         caption: 'quasar.dev',
         icon: 'school',
-        link: 'https://quasar.dev',
+        link: '/cheatsheets',
       },
     ];
 
@@ -73,7 +60,7 @@ export default defineComponent({
     const $q = useQuasar();
     $q.bex
       .send('storage.get', { key: 'wb.drawer.toggle' })
-      .then((res: StorageDrawerData) => {
+      .then((res: StorageDrawerData<ToggleStatus>) => {
         debugger;
         console.log(res);
         leftDrawerOpen.value = res.data.open;
@@ -91,7 +78,7 @@ export default defineComponent({
       };
       $q.bex
         .send('storage.set', payload)
-        .then((res: StorageDrawerData) => {
+        .then((res: StorageDrawerData<ToggleStatus>) => {
           debugger;
           // Only set this once the promise has resolved so we can see the entire slide animation.
           leftDrawerOpen.value = res.data.open;

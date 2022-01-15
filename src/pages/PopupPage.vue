@@ -11,16 +11,28 @@
           align="justify"
           narrow-indicator
         >
-          <q-tab v-for="item in list" v-bind:key="item.name" :name="item.name" :label="item.label" />
+          <q-tab
+            v-for="item in list"
+            v-bind:key="item.name"
+            :name="item.name"
+            :label="item.label"
+          />
         </q-tabs>
 
         <q-separator />
 
         <q-tab-panels v-model="tab" animated>
-          <q-tab-panel v-for="item in list" v-bind:key="item.name" :name="item.name">
+          <q-tab-panel
+            v-for="item in list"
+            v-bind:key="item.name"
+            :name="item.name"
+          >
             <div class="text-h6" @click="copy(item.content)">
               {{ item.label }}
             </div>
+            <a v-if="item.link" :href="item.link" target="_blank">{{
+              item.link
+            }}</a>
             <pre>{{ item.content }}</pre>
           </q-tab-panel>
         </q-tab-panels>
@@ -39,7 +51,7 @@ export default defineComponent({
       {
         name: 'arthas',
         label: 'Arthas',
-        link: 'https://alibaba.github.io/arthas/',
+        link: 'https://arthas.aliyun.com/doc/watch.html',
         content: `wget https://alibaba.github.io/arthas/arthas-boot.jar
 java -jar arthas-boot.jar`,
       },
@@ -54,9 +66,9 @@ chmod 777 lancet.sh
       {
         name: 'nosync',
         label: 'NoCloud',
-        link:'https://apple.stackexchange.com/questions/254313/how-to-exclude-a-sub-folder-from-icloud-drive-in-macos-sierra',
+        link: 'https://apple.stackexchange.com/questions/254313/how-to-exclude-a-sub-folder-from-icloud-drive-in-macos-sierra',
         content: `mv fileorfolder fileorfolder.nosync
-ln -s fileorfolder.nosync fileorfolder`
+ln -s fileorfolder.nosync fileorfolder`,
       },
     ]);
     const tab = ref(list[0].name);
@@ -70,7 +82,7 @@ ln -s fileorfolder.nosync fileorfolder`
     return {
       tab,
       list,
-      copy
+      copy,
     };
   },
 });

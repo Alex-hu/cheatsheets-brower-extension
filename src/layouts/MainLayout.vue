@@ -11,7 +11,7 @@
           @click="toggleLeftDrawer"
         />
 
-        <q-toolbar-title> Quasar App </q-toolbar-title>
+        <q-toolbar-title> Cheatsheets App </q-toolbar-title>
 
         <div>Quasar v{{ $q.version }}</div>
       </q-toolbar>
@@ -35,7 +35,17 @@
     </q-drawer>
 
     <q-page-container>
-      <router-view />
+      <router-view>
+        <template #default="{ Component, route }">
+          <transition mode="out-in" appear>
+            <div>
+              <keep-alive>
+                <component :is="Component" :key="route.path" />
+              </keep-alive>
+            </div>
+          </transition>
+        </template>
+      </router-view>
     </q-page-container>
   </q-layout>
 </template>
@@ -104,16 +114,16 @@ export default defineComponent({
     const drawerToggled = () => {
       $q.bex
         .send('wb.drawer.toggle', {
-          open: leftDrawerOpen.value // So it knows to make it bigger / smaller
+          open: leftDrawerOpen.value, // So it knows to make it bigger / smaller
         })
         .then(() => {
           // Only set this once the promise has resolved so we can see the entire slide animation.
-          leftDrawerOpen.value = !leftDrawerOpen.value
+          leftDrawerOpen.value = !leftDrawerOpen.value;
         })
-        .catch(()=>{
+        .catch(() => {
           console.log('test');
         });
-    }
+    };
 
     return {
       essentialLinks: linksList,
