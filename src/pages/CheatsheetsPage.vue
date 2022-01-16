@@ -1,13 +1,51 @@
 <template>
   <div class="q-pa-md">
-    <q-table title="Treats" :rows="rows" :columns="columns" row-key="name" />
+    <q-table title="Treats" :rows="rows" :columns="columns" row-key="name">
+      <template v-slot:top-right="props">
+        <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
+          <template v-slot:append>
+            <q-icon name="search" />
+          </template>
+        </q-input>
+        <q-btn
+          flat
+          round
+          dense
+          :icon="mode === 'grid' ? 'list' : 'grid_on'"
+          @click="
+            mode = mode === 'grid' ? 'list' : 'grid';
+            separator = mode === 'grid' ? 'none' : 'horizontal';
+          "
+          v-if="!props.inFullscreen"
+        >
+          <q-tooltip :disable="$q.platform.is.mobile" v-close-popup
+            >{{ mode === 'grid' ? 'List' : 'Grid' }}
+          </q-tooltip>
+        </q-btn>
+        <q-btn color="primary" icon-right="archive" label="Add" no-caps @click="add" />
+      </template>
+      <template v-slot:body-cell-action="props">
+        <q-td :props="props">
+          <div class="q-gutter-sm">
+            <q-btn dense color="primary" icon="edit" @click="edit" />
+            <q-btn dense color="red" icon="delete" @click="del" />
+          </div>
+        </q-td>
+      </template>
+    </q-table>
   </div>
+  <CheatsheetsFormDialog ref="dialogComp" :data="data"></CheatsheetsFormDialog>
 </template>
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
+import { CheatSheetData } from './types';
+import CheatsheetsFormDialog from './CheatsheetFormDialog.vue';
 
 export default defineComponent({
-  name: 'EssentialLink',
+  name: 'CheatsheetsPage',
+  components: {
+    CheatsheetsFormDialog,
+  },
   setup() {
     const columns = [
       {
@@ -18,24 +56,50 @@ export default defineComponent({
         field: 'name',
         sortable: true,
       },
-      {
-        name: 'label',
-        align: 'center',
-        label: 'label',
-        field: 'label',
-        sortable: true,
-      },
+      { name: 'label', align: 'center', label: 'label', field: 'label', sortable: true },
       { name: 'link', label: 'Link', field: 'link', sortable: true },
       { name: 'content', label: 'content', field: 'content' },
-      { name: 'order', label: 'order', field: 'order' },
+      { name: 'order', label: 'order', field: 'order', sortable: true },
       { name: 'type', label: 'type', field: 'type' },
-      { name: 'createTime', label: 'createTime', field: 'createTime' },
-      { name: 'modifyTime', label: 'modifyTime', field: 'modifyTime' },
+      { name: 'createTime', label: 'createTime', field: 'createTime', sortable: true },
+      { name: 'modifyTime', label: 'modifyTime', field: 'modifyTime', sortable: true },
       { name: 'url', label: 'url Pattern', field: 'url' },
+      { name: 'action', align: 'left', label: 'Action', field: 'action', sortable: true },
     ];
+    const data: CheatSheetData = {
+      name: '',
+      label: '',
+      link: '',
+      content: '',
+      order: 1,
+      type: '',
+      createTime: new Date(),
+      modifyTime: new Date(),
+      url: '',
+    };
+    const dialogComp = ref();
+
+    const add = () => {
+      dialogComp.value.open();
+    };
+    const edit = () => {
+      console.log('test');
+    };
+    const del = () => {
+      console.log('test');
+    };
+
     return {
+      filter: '',
+      separator: '',
+      mode: 'list',
       columns,
       rows: [],
+      add,
+      edit,
+      del,
+      dialogComp,
+      data,
     };
   },
 });

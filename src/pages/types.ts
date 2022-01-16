@@ -29,9 +29,9 @@ export interface CheatSheetData {
   /** type */
   type: string;
   /** create time */
-  createTime: string;
+  createTime: Date;
   /** modify time */
-  modifyTime: string;
+  modifyTime: Date;
   /** url pattern: show this cheatsheet when url matched. */
   url: string;
 }

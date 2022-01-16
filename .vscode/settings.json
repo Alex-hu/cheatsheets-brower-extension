@@ -1,6 +1,5 @@
 {
   "vetur.validation.template": false,
-  "vetur.format.enable": false,
   "eslint.validate": ["javascript", "javascriptreact", "typescript", "vue"],
   "typescript.tsdk": "node_modules/typescript/lib",
   "vetur.experimental.templateInterpolationService": true,
@@ -15,5 +14,14 @@
   "javascript.format.placeOpenBraceOnNewLineForFunctions": false,
   "typescript.format.insertSpaceBeforeFunctionParenthesis": true,
   "typescript.format.placeOpenBraceOnNewLineForControlBlocks": false,
-  "typescript.format.placeOpenBraceOnNewLineForFunctions": false
+  "typescript.format.placeOpenBraceOnNewLineForFunctions": false,
+  "eslint.format.enable": true,
+  "eslint.codeActionsOnSave.mode": "problems",
+  "prettier.printWidth": 120,
+  "prettier.requireConfig": true,
+  "prettier.singleQuote": true,
+  "vue-helper.quotes": "single",
+  "javascript.preferences.quoteStyle": "single",
+  "typescript.preferences.quoteStyle": "single",
+  "vue3snippets.singleQuote": true
 }
