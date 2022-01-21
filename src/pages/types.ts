@@ -21,7 +21,7 @@ export interface CheatSheetData {
   /** label */
   label: string;
   /** link to resource */
-  link: string;
+  link?: string;
   /** content: can be copied. */
   content: string;
   /** order: used by sort */
@@ -33,5 +33,5 @@ export interface CheatSheetData {
   /** modify time */
   modifyTime: Date;
   /** url pattern: show this cheatsheet when url matched. */
-  url: string;
+  url?: string;
 }
