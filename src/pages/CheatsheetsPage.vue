@@ -2,13 +2,7 @@
   <div class="q-pa-md">
     <q-table title="Cheatsheet" :rows="rows" :columns="columns" row-key="name">
       <template v-slot:top-right="props">
-        <q-input
-          outlined
-          dense
-          debounce="300"
-          v-model="filter"
-          placeholder="Search"
-        >
+        <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
           <template v-slot:append>
             <q-icon name="search" />
           </template>
@@ -28,13 +22,7 @@
             >{{ mode === 'grid' ? 'List' : 'Grid' }}
           </q-tooltip>
         </q-btn>
-        <q-btn
-          color="primary"
-          icon-right="archive"
-          label="Add"
-          no-caps
-          @click="add"
-        />
+        <q-btn color="primary" icon-right="archive" label="Add" no-caps @click="add" />
       </template>
       <template v-slot:body-cell-action="props">
         <q-td :props="props">
@@ -46,10 +34,10 @@
       </template>
     </q-table>
   </div>
-  <CheatsheetsFormDialog ref="dialogComp" :data="data"></CheatsheetsFormDialog>
+  <CheatsheetsFormDialog ref="dialogComp" :onSuccess="refresh"></CheatsheetsFormDialog>
 </template>
 <script lang="ts">
-import { defineComponent, ref, reactive } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { CheatSheetData, StorageDrawerData } from './types';
 import CheatsheetsFormDialog from './CheatsheetFormDialog.vue';
 import { useQuasar } from 'quasar';
@@ -77,51 +65,42 @@ export default defineComponent({
         field: 'label',
         sortable: true,
       },
-      { name: 'link', label: 'Link', field: 'link', sortable: true },
-      { name: 'content', label: 'content', field: 'content' },
-      { name: 'order', label: 'order', field: 'order', sortable: true },
-      { name: 'type', label: 'type', field: 'type' },
+      { name: 'link', align: 'center', label: 'Link', field: 'link', sortable: true },
+      { name: 'content', align: 'center', label: 'content', field: 'content' },
+      { name: 'order', align: 'center', label: 'order', field: 'order', sortable: true },
+      { name: 'type', align: 'center', label: 'type', field: 'type' },
       {
         name: 'createTime',
+        align: 'center',
         label: 'createTime',
         field: 'createTime',
         sortable: true,
       },
       {
         name: 'modifyTime',
+        align: 'center',
         label: 'modifyTime',
         field: 'modifyTime',
         sortable: true,
       },
-      { name: 'url', label: 'url Pattern', field: 'url' },
+      { name: 'url', align: 'center', label: 'url Pattern', field: 'url' },
       {
         name: 'action',
-        align: 'left',
+        align: 'center',
         label: 'Action',
         field: 'action',
         sortable: true,
       },
     ];
-    let data = reactive<CheatSheetData>({
-      name: '',
-      label: '',
-      link: '',
-      content: '',
-      order: 1,
-      type: '',
-      createTime: new Date(),
-      modifyTime: new Date(),
-      url: '',
-    });
+
     const dialogComp = ref();
 
     const add = () => {
       dialogComp.value.open();
     };
     const edit = (row: CheatSheetData) => {
-      console.log(row);
-      data = row;
-      dialogComp.value.open();
+      console.log('row:', row);
+      dialogComp.value.open(row);
     };
     const del = () => {
       console.log('test');
@@ -129,13 +108,14 @@ export default defineComponent({
 
     let rows = ref<CheatSheetData[]>([]);
     const $q = useQuasar();
-    $q.bex
-      .send('storage.get', { key: CHEATSHEET_LIST_KEY })
-      .then((res: StorageDrawerData<CheatSheetData[]>) => {
-        console.log(res);
-        console.table(res.data);
-        rows.value = res.data as CheatSheetData[];
-      });
+    const refresh = () => {
+      $q.bex
+        .send('storage.get', { key: CHEATSHEET_LIST_KEY })
+        .then((res: StorageDrawerData<CheatSheetData[]>) => {
+          rows.value = res.data as CheatSheetData[];
+        });
+    };
+    refresh();
 
     return {
       filter: '',
@@ -147,7 +127,7 @@ export default defineComponent({
       edit,
       del,
       dialogComp,
-      data,
+      refresh,
     };
   },
 });

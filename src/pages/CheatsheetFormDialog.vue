@@ -2,7 +2,7 @@
   <q-dialog v-model="visible" width="900px" :maximized="true">
     <q-card class="my-card">
       <q-card-section class="row items-center q-pb-none">
-        <div class="text-h6">{{ data.name ? 'Edit' : 'Add' }}</div>
+        <div class="text-h6">{{ dialogType == 'EDIT' ? 'Edit' : 'Add' }}</div>
         <q-space />
         <q-btn icon="close" flat round dense v-close-popup />
       </q-card-section>
@@ -14,9 +14,7 @@
             label="Key Name"
             hint="Tab the unique Key Name"
             lazy-rules
-            :rules="[
-              (val) => (val && val.length > 0) || 'Please type something',
-            ]"
+            :rules="[(val) => (val && val.length > 0) || 'Please type something']"
           />
 
           <q-input
@@ -24,9 +22,7 @@
             v-model="formModel.label"
             label="Title"
             lazy-rules
-            :rules="[
-              (val) => (val && val.length > 0) || 'Please type something',
-            ]"
+            :rules="[(val) => (val && val.length > 0) || 'Please type something']"
           />
 
           <q-input
@@ -34,21 +30,21 @@
             v-model="formModel.link"
             label="url"
             lazy-rules
-            :rules="[
-              (val) => (val && val.length > 0) || 'Please type something',
-            ]"
+            :rules="[(val) => (val && val.length > 0) || 'Please type something']"
           />
-          <q-editor v-model="formModel.content" min-height="5rem" />
+
+          <q-input
+            outlined
+            v-model="formModel.content"
+            type="textarea"
+            label="content"
+            lazy-rules
+            :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+          />
 
           <div>
             <q-btn label="Submit" type="submit" color="primary" />
-            <q-btn
-              label="Reset"
-              type="reset"
-              color="primary"
-              flat
-              class="q-ml-sm"
-            />
+            <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
           </div>
         </q-form>
       </div>
@@ -59,26 +55,47 @@
 <script lang="ts">
 import { useQuasar } from 'quasar';
 import { CHEATSHEET_LIST_KEY } from 'src/service/storageKey';
-import { defineComponent, ref, PropType, reactive } from 'vue';
+import { defineComponent, ref, reactive } from 'vue';
 import { CheatSheetData, StorageDrawerData } from './types';
 
 export default defineComponent({
   name: 'CheatsheetsFormDialog',
   props: {
-    data: {
-      type: Object as PropType<CheatSheetData>,
-      required: true,
+    onSuccess: {
+      type: Function,
+      required: false,
     },
   },
   setup(props) {
     const visible = ref(false);
-    const open = () => {
+    const dialogType = ref('ADD');
+    let formModel = reactive<CheatSheetData>({
+      name: '',
+      label: '',
+      link: '',
+      content: '',
+      order: 1,
+      type: '',
+      createTime: new Date(),
+      modifyTime: new Date(),
+      url: '',
+    });
+    const open = (one: CheatSheetData) => {
+      console.log('dialog:', one);
+      if (one) {
+        dialogType.value = 'EDIT';
+        formModel.name = one.name;
+        formModel.label = one.label;
+        formModel.link = one.link;
+        formModel.content = one.content;
+      } else {
+        dialogType.value = 'ADD';
+      }
       visible.value = true;
     };
     const hide = () => {
       visible.value = false;
     };
-    const formModel = reactive(props.data);
     console.log('dialog data:', formModel);
 
     const $q = useQuasar();
@@ -113,20 +130,21 @@ export default defineComponent({
             .send('storage.set', payload)
             .then((res: StorageDrawerData<CheatSheetData[]>) => {
               console.table(res.data);
+              props.onSuccess?.apply(res.data);
               hide();
             })
-            .catch(() => {
-              console.log('test');
+            .catch((e) => {
+              console.log(e);
             });
         })
-        .catch(() => {
-          console.log('test');
+        .catch((e) => {
+          console.log(e);
         });
     };
 
     return {
       visible,
-
+      dialogType,
       name: '',
       age: 10,
       accept: '',
