@@ -2,7 +2,7 @@
   <div class="q-pa-md">
     <q-table
       title="Cheatsheet"
-      :rows="rows"
+      :rows="listData"
       :columns="columns"
       row-key="name"
       @row-dblclick="dblclick"
@@ -57,7 +57,7 @@
   <CheatsheetsFormDialog ref="dialogComp" :onSuccess="refresh"></CheatsheetsFormDialog>
 </template>
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, computed } from 'vue';
 import { CheatSheetData, StorageDrawerData } from './types';
 import CheatsheetsFormDialog from './CheatsheetFormDialog.vue';
 import { useQuasar } from 'quasar';
@@ -183,8 +183,22 @@ export default defineComponent({
       edit(row);
     };
 
+    const filter = ref('');
+    const listData = computed(() => {
+      if (filter.value) {
+        return rows.value.filter(
+          (item) =>
+            item.label.indexOf(filter.value) > -1 ||
+            (item.link && item.link.indexOf(filter.value) > -1) ||
+            item.content.indexOf(filter.value) > -1
+        );
+      } else {
+        return rows.value;
+      }
+    });
+
     return {
-      filter: '',
+      filter,
       separator: '',
       mode: 'list',
       columns,
@@ -197,6 +211,7 @@ export default defineComponent({
       showConfirm,
       delItem,
       dblclick,
+      listData,
     };
   },
 });
