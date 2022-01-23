@@ -1,6 +1,12 @@
 <template>
   <div class="q-pa-md">
-    <q-table title="Cheatsheet" :rows="rows" :columns="columns" row-key="name">
+    <q-table
+      title="Cheatsheet"
+      :rows="rows"
+      :columns="columns"
+      row-key="name"
+      @row-dblclick="dblclick"
+    >
       <template v-slot:top-right="props">
         <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
           <template v-slot:append>
@@ -28,11 +34,25 @@
         <q-td :props="props">
           <div class="q-gutter-sm">
             <q-btn dense color="primary" icon="edit" @click="edit(props.row)" />
-            <q-btn dense color="red" icon="delete" @click="del" />
+            <q-btn dense color="red" icon="delete" @click="showDelConfirm(props.row)" />
           </div>
         </q-td>
       </template>
     </q-table>
+
+    <q-dialog v-model="showConfirm" persistent>
+      <q-card>
+        <q-card-section class="row items-center">
+          <q-avatar icon="signal_wifi_off" color="primary" text-color="white" />
+          <span class="q-ml-sm">Are you sure to delete this item?</span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancel" color="primary" v-close-popup />
+          <q-btn flat label="Delete" color="primary" @click="delItem" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
   <CheatsheetsFormDialog ref="dialogComp" :onSuccess="refresh"></CheatsheetsFormDialog>
 </template>
@@ -65,8 +85,23 @@ export default defineComponent({
         field: 'label',
         sortable: true,
       },
-      { name: 'link', align: 'center', label: 'Link', field: 'link', sortable: true },
-      { name: 'content', align: 'center', label: 'content', field: 'content' },
+      {
+        name: 'link',
+        align: 'center',
+        label: 'Link',
+        style:
+          'max-width: 250px;overflow:hidden; white-space:nowrap; text-overflow:ellipsis',
+        field: 'link',
+        sortable: true,
+      },
+      {
+        name: 'content',
+        align: 'center',
+        label: 'content',
+        style:
+          'max-width: 400px;overflow:hidden; white-space:nowrap; text-overflow:ellipsis',
+        field: 'content',
+      },
       { name: 'order', align: 'center', label: 'order', field: 'order', sortable: true },
       { name: 'type', align: 'center', label: 'type', field: 'type' },
       {
@@ -102,8 +137,13 @@ export default defineComponent({
       console.log('row:', row);
       dialogComp.value.open(row);
     };
-    const del = () => {
-      console.log('test');
+
+    // confirm dialog open status.
+    const showConfirm = ref(false);
+    const seleted = ref<CheatSheetData>();
+    const showDelConfirm = (row: CheatSheetData) => {
+      showConfirm.value = true;
+      seleted.value = row;
     };
 
     let rows = ref<CheatSheetData[]>([]);
@@ -117,6 +157,32 @@ export default defineComponent({
     };
     refresh();
 
+    const delItem = () => {
+      rows.value.forEach((item, index) => {
+        if (item.name === seleted.value?.name) {
+          rows.value.splice(index, 1);
+          return;
+        }
+      });
+
+      const payload = {
+        key: CHEATSHEET_LIST_KEY,
+        data: rows.value,
+      };
+      $q.bex
+        .send('storage.set', payload)
+        .then(() => {
+          refresh();
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    };
+
+    const dblclick = (_: Event, row: CheatSheetData) => {
+      edit(row);
+    };
+
     return {
       filter: '',
       separator: '',
@@ -125,9 +191,12 @@ export default defineComponent({
       rows,
       add,
       edit,
-      del,
+      showDelConfirm,
       dialogComp,
       refresh,
+      showConfirm,
+      delItem,
+      dblclick,
     };
   },
 });

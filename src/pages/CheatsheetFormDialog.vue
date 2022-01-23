@@ -1,7 +1,7 @@
 <template>
-  <q-dialog v-model="visible" width="900px" :maximized="true">
+  <q-dialog v-model="visible" :maximized="true">
     <q-card class="my-card">
-      <q-card-section class="row items-center q-pb-none">
+      <q-card-section class="row items-center">
         <div class="text-h6">{{ dialogType == 'EDIT' ? 'Edit' : 'Add' }}</div>
         <q-space />
         <q-btn icon="close" flat round dense v-close-popup />

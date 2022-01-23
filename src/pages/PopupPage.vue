@@ -25,6 +25,14 @@
           <q-tab-panel v-for="item in list" v-bind:key="item.name" :name="item.name">
             <div class="text-h6" @click="copy(item.content)">
               {{ item.label }}
+              <q-tooltip
+                class="bg-indigo"
+                anchor="top end"
+                self="top end"
+                :offset="[-50, 10]"
+              >
+                Click the title to copy the content.
+              </q-tooltip>
             </div>
             <a v-if="item.link" :href="item.link" target="_blank">{{ item.link }}</a>
             <pre>{{ item.content }}</pre>
