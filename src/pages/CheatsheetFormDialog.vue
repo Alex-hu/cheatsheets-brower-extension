@@ -89,6 +89,12 @@ export default defineComponent({
         formModel.link = one.link;
         formModel.content = one.content;
       } else {
+        formModel.name = '';
+        formModel.label = '';
+        formModel.link = '';
+        formModel.content = '';
+        formModel.createTime = new Date();
+        formModel.modifyTime = new Date();
         dialogType.value = 'ADD';
       }
       visible.value = true;
@@ -101,13 +107,13 @@ export default defineComponent({
     const $q = useQuasar();
 
     const onSubmit = () => {
-      console.log('1');
+      // fetch all data
       $q.bex
         .send('storage.get', { key: CHEATSHEET_LIST_KEY })
         .then((res: StorageDrawerData<CheatSheetData[]>) => {
           let list = res.data as CheatSheetData[];
-          if (list) {
-            console.log('not empty');
+          if (dialogType.value === 'EDIT') {
+            // find the edit one, then update the data.
             list.forEach((item) => {
               if (item.name === formModel.name) {
                 item.link = formModel.link;
@@ -117,8 +123,10 @@ export default defineComponent({
                 return;
               }
             });
-          } else {
-            list = [];
+          } else if (dialogType.value === 'ADD') {
+            if (!list) {
+              list = [];
+            }
             list.push(formModel);
           }
 

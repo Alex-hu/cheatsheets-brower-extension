@@ -22,17 +22,11 @@
         <q-separator />
 
         <q-tab-panels v-model="tab" animated>
-          <q-tab-panel
-            v-for="item in list"
-            v-bind:key="item.name"
-            :name="item.name"
-          >
+          <q-tab-panel v-for="item in list" v-bind:key="item.name" :name="item.name">
             <div class="text-h6" @click="copy(item.content)">
               {{ item.label }}
             </div>
-            <a v-if="item.link" :href="item.link" target="_blank">{{
-              item.link
-            }}</a>
+            <a v-if="item.link" :href="item.link" target="_blank">{{ item.link }}</a>
             <pre>{{ item.content }}</pre>
           </q-tab-panel>
         </q-tab-panels>
@@ -41,37 +35,17 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, ref, reactive } from 'vue';
+import { useQuasar } from 'quasar';
+import { CHEATSHEET_LIST_KEY } from 'src/service/storageKey';
+import { defineComponent, ref } from 'vue';
 import { useClipboard } from './../hooks/extend/useClipboard';
+import { StorageDrawerData, CheatSheetData } from './types';
 
 export default defineComponent({
   name: 'PopupPage',
   setup() {
-    const list = reactive([
-      {
-        name: 'arthas',
-        label: 'Arthas',
-        link: 'https://arthas.aliyun.com/doc/watch.html',
-        content: `wget https://alibaba.github.io/arthas/arthas-boot.jar
-java -jar arthas-boot.jar`,
-      },
-      {
-        name: 'lancet',
-        label: '柳叶刀',
-        link: 'http://lancet.corp.elong.com/',
-        content: `wget 'http://lancet.corp.elong.com/lancet.sh'
-chmod 777 lancet.sh
-./lancet.sh`,
-      },
-      {
-        name: 'nosync',
-        label: 'NoCloud',
-        link: 'https://apple.stackexchange.com/questions/254313/how-to-exclude-a-sub-folder-from-icloud-drive-in-macos-sierra',
-        content: `mv fileorfolder fileorfolder.nosync
-ln -s fileorfolder.nosync fileorfolder`,
-      },
-    ]);
-    const tab = ref(list[0].name);
+    let list = ref<CheatSheetData[]>([]);
+    const tab = ref('');
     const copy = async (message: string) => {
       try {
         await useClipboard(message);
@@ -79,6 +53,17 @@ ln -s fileorfolder.nosync fileorfolder`,
         alert('copy error!');
       }
     };
+
+    const $q = useQuasar();
+    const refresh = () => {
+      $q.bex
+        .send('storage.get', { key: CHEATSHEET_LIST_KEY })
+        .then((res: StorageDrawerData<CheatSheetData[]>) => {
+          list.value = res.data as CheatSheetData[];
+          tab.value = list.value[0].name;
+        });
+    };
+    refresh();
     return {
       tab,
       list,
